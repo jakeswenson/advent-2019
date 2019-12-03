@@ -3,7 +3,11 @@ use std::str::FromStr;
 fn module_masses() -> impl Iterator<Item = i64> {
     let modules_text = include_str!("resources/day01.txt");
 
-    modules_text.lines().map(i64::from_str).map(|r| r.unwrap())
+    modules_text
+        .lines()
+        .map(i64::from_str)
+        .filter(|r| r.is_ok())
+        .map(|r| r.unwrap())
 }
 
 fn fuel_required(mass: i64) -> i64 {
@@ -36,6 +40,8 @@ fn part_two() -> i64 {
 }
 
 pub fn solve() {
+    println!("-------------\n  Day 01\n-------------");
+
     let total_mass: i64 = module_masses().sum();
     println!("Total Mass   : {}", total_mass);
 
