@@ -1,5 +1,6 @@
 use std::borrow::Borrow;
 use std::ops::{Range, RangeInclusive};
+use std::collections::HashMap;
 
 fn get_digits(mut num: i32, buffer: &mut Vec<i32>) {
     buffer.clear();
@@ -43,35 +44,34 @@ fn meets_rules_part2(num: i32, buffer: &mut Vec<i32>) -> bool {
         increasing: bool,
         last: Option<i32>,
         last_last: Option<i32>,
-        has_valid_double: bool,
-        valid_double_digit: Option<i32>,
+        valid_doubles: HashMap<i32, bool>,
     };
 
     let state = buffer.iter().fold(
         State {
             increasing: true,
-            has_valid_double: false,
+            valid_doubles: HashMap::new(),
             last: None,
             last_last: None,
-            valid_double_digit: None,
         },
-        |state, &digit| {
+        |mut state, &digit| {
             let is_increasing_or_equal =
                 state.last.map(|last_dig| digit >= last_dig).unwrap_or(true);
-            let is_valid_double = Some(digit) == state.last && Some(digit) != state.last_last;
+            let digit = Some(digit);
+            let is_valid_double = digit == state.last && digit != state.last_last;
+
+            let mut map = state.valid_doubles;
+            map.insert(digit.unwrap(), is_valid_double);
             State {
                 increasing: state.increasing && is_increasing_or_equal,
-                last: Some(digit),
+                last: digit,
                 last_last: state.last,
-                has_valid_double: (Some(digit) != state.valid_double_digit
-                    && state.has_valid_double)
-                    || is_valid_double,
-                valid_double_digit: if is_valid_double { Some(digit) } else { None },
+                valid_doubles: map
             }
-        },
+        }
     );
 
-    state.increasing && state.has_valid_double
+    state.increasing && state.valid_doubles.values().any(|&v|v)
 }
 
 fn part2(range: RangeInclusive<i32>) -> usize {
@@ -108,9 +108,11 @@ mod tests {
     fn test_part2_rules() {
         let mut buffer = Vec::new();
         assert!(meets_rules_part2(112233, &mut buffer));
-        assert!(!meets_rules_part2(123444, &mut buffer));
         assert!(meets_rules_part2(111122, &mut buffer));
         assert!(meets_rules_part2(123344, &mut buffer));
-        //assert!(meets_rules_part2(12334567, &mut buffer));
+        assert!(meets_rules_part2(122333, &mut buffer));
+        assert!(meets_rules_part2(223333, &mut buffer));
+
+        assert!(!meets_rules_part2(123444, &mut buffer));
     }
 }
