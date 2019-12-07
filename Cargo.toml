@@ -6,3 +6,4 @@ edition = "2018"
 
 [dependencies]
 num-bigint = "0.2"
+svg = "0.6.0"

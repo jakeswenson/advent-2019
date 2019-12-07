@@ -128,7 +128,6 @@ fn solve_for(solution: i32) {
 }
 
 pub fn solve() {
-    println!("-------------\n  Day 02\n-------------");
     println!("Part 1: {}", eval(&mut operation_stack(12, 2)));
     solve_for(19690720);
 }

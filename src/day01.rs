@@ -40,8 +40,6 @@ fn part_two() -> i64 {
 }
 
 pub fn solve() {
-    println!("-------------\n  Day 01\n-------------");
-
     let total_mass: i64 = module_masses().sum();
     println!("Total Mass   : {}", total_mass);
 
