@@ -1,5 +1,5 @@
-use std::ops::{RangeInclusive};
 use std::collections::HashMap;
+use std::ops::RangeInclusive;
 
 fn get_digits(mut num: i32, buffer: &mut Vec<i32>) {
     buffer.clear();
@@ -53,7 +53,7 @@ fn meets_rules_part2(num: i32, buffer: &mut Vec<i32>) -> bool {
             last: None,
             last_last: None,
         },
-        |mut state, &digit| {
+        |state, &digit| {
             let is_increasing_or_equal =
                 state.last.map(|last_dig| digit >= last_dig).unwrap_or(true);
             let digit = Some(digit);
@@ -65,12 +65,12 @@ fn meets_rules_part2(num: i32, buffer: &mut Vec<i32>) -> bool {
                 increasing: state.increasing && is_increasing_or_equal,
                 last: digit,
                 last_last: state.last,
-                valid_doubles: map
+                valid_doubles: map,
             }
-        }
+        },
     );
 
-    state.increasing && state.valid_doubles.values().any(|&v|v)
+    state.increasing && state.valid_doubles.values().any(|&v| v)
 }
 
 fn part2(range: RangeInclusive<i32>) -> usize {
@@ -89,6 +89,7 @@ pub fn solve() {
 mod tests {
     use super::*;
 
+    #[test]
     fn test_digits_fun() {
         let mut buffer = Vec::new();
         get_digits(111123, &mut buffer);
