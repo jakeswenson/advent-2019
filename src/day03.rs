@@ -4,17 +4,13 @@ use std::str::FromStr;
 
 #[derive(Copy, Clone, PartialOrd, PartialEq, Ord, Eq, Debug, Hash)]
 pub struct Point {
-    x: i32,
-    y: i32,
+    pub x: i32,
+    pub y: i32,
 }
 
 impl Point {
     fn new(x: i32, y: i32) -> Self {
         return Point { x, y };
-    }
-
-    fn distance_from_origin(&self) -> i32 {
-        self.x.abs() + self.y.abs()
     }
 
     fn left(&self, amount: i32) -> Self {
@@ -112,7 +108,47 @@ pub struct PathSegment {
     range: Range<DirectionalPoint>,
 }
 
+impl PathSegment {
+    pub fn points(&self) -> Vec<DirectionalPoint> {
+        self.range.start.step_to(&self.range.end).expect("Cant step")
+    }
+
+    pub fn end(&self) -> Point {
+        self.range.end.point.clone()
+    }
+}
+
 pub type WirePath = Vec<PathSegment>;
+
+pub mod distances {
+    use crate::day03::{Point, WirePath};
+    use std::collections::HashMap;
+
+    pub fn manhattan(point: &Point) -> i32{
+        point.x.abs() + point.y.abs()
+    }
+
+    pub fn wire_paths(first: &WirePath, second: &WirePath) -> impl Fn(&Point) -> i32 {
+
+        fn points(path: &WirePath) -> Vec<Point> {
+            path.iter()
+                .flat_map(|seg| seg.points())
+                .map(|p| p.point)
+                .collect()
+        }
+
+        let mut map: HashMap<Point, i32> = HashMap::new();
+            points(first).iter().enumerate()
+                .chain(points(second).iter().enumerate())
+            .for_each(|(idx, &point)| {
+                map.entry(point)
+                    .and_modify(|e| *e += idx as i32)
+                    .or_insert(idx as i32);
+            });
+
+        move |point| map.get(point).expect("Can't find key").clone()
+    }
+}
 
 fn parse_wire_path(input: &str) -> WirePath {
     struct State {
@@ -186,7 +222,7 @@ fn parse_paths(input: &str) -> (WirePath, WirePath) {
     (lines[0].clone(), lines[1].clone())
 }
 
-fn all_points(path: &WirePath) -> HashSet<Point> {
+pub fn all_points(path: &WirePath) -> HashSet<Point> {
     path.iter()
         .flat_map(|seg| seg.range.start.step_to(&seg.range.end).expect("Cant step"))
         .map(|p| p.point)
@@ -194,173 +230,51 @@ fn all_points(path: &WirePath) -> HashSet<Point> {
         .collect()
 }
 
-fn all_intersections(path1: WirePath, path2: WirePath) -> Vec<Point> {
-    let path1_points = all_points(&path1);
-    let path2_points = all_points(&path2);
+pub fn all_intersections(path1: &WirePath, path2: &WirePath) -> Vec<Point> {
+    let path1_points = all_points(path1);
+    let path2_points = all_points(path2);
 
     path1_points.intersection(&path2_points).cloned().collect()
 }
 
-fn closest_to_origin(mut points: Vec<Point>) -> Option<Point> {
-    points.sort_by_key(|p| p.distance_from_origin());
+pub fn find_closest((first, second): (&WirePath, &WirePath), distance: impl Fn(&Point) -> i32) -> Option<Point> {
+    let mut points = all_intersections(&first, &second);
+
+    points.sort_by_key(distance);
     points.first().cloned()
 }
 
-fn find_closest(input: &str) -> Option<Point> {
+fn part1(input: &str) {
     let (first, second) = parse_paths(input);
-    closest_to_origin(all_intersections(first, second))
+
+    let result = find_closest((&first, &second), distances::manhattan).expect("No closest Point");
+    println!("Distance: {}", distances::manhattan(&result));
+}
+
+fn part2(input: &str) {
+    let (first, second) = parse_paths(input);
+    let distance_to = distances::wire_paths(&first, &second);
+
+    let result = find_closest((&first, &second), distance_to).expect("No closest Point");
+
+    let distance_to = distances::wire_paths(&first, &second);
+
+    println!("Distance: {}", distance_to(&result));
 }
 
 pub fn solve() {
     let paths_text = include_str!("resources/day03.txt");
-    let result = find_closest(paths_text).expect("No closest Point");
-    println!("Distance: {}", result.distance_from_origin());
-    let (first, second) = parse_paths(paths_text);
+    part1(paths_text);
+    part2(paths_text)
+    // let (first, second) = parse_paths(paths_text);
     // to_svg::make_svg(first, second);
 }
 
-mod to_svg {
-    use std::collections::HashSet;
-
-    use crate::day03::find_closest;
-
-    use super::{PathSegment, Point, WirePath};
-
-    struct Bounds {
-        min_x: i32,
-        min_y: i32,
-        max_x: i32,
-        max_y: i32,
-    }
-
-    impl Bounds {
-        fn expand(&self, by: i32) -> Bounds {
-            Bounds {
-                max_y: by + self.max_y,
-                max_x: by + self.max_x,
-                min_y: self.min_y - by,
-                min_x: self.min_x - by,
-            }
-        }
-    }
-
-    fn get_bounds(paths: &Vec<WirePath>) -> Bounds {
-        let points: HashSet<Point> = paths
-            .iter()
-            .flat_map(|wire_path| super::all_points(wire_path))
-            .collect();
-
-        let max_x = points.iter().map(|p| p.x).max().unwrap();
-        let min_x = points.iter().map(|p| p.x).min().unwrap();
-        let max_y = points.iter().map(|p| p.y).max().unwrap();
-        let min_y = points.iter().map(|p| p.y).min().unwrap();
-
-        Bounds {
-            max_x,
-            max_y,
-            min_x,
-            min_y,
-        }
-    }
-
-    pub fn make_svg(first: WirePath, second: WirePath) {
-        use svg::node::element::path::Data;
-        use svg::node::element::{Circle, Path, Text};
-        use svg::node::Node;
-        use svg::Document;
-
-        let bounds = get_bounds(&vec![first.clone(), second.clone()]);
-        let view_port = bounds.expand(2);
-
-        let document = Document::new().set(
-            "viewBox",
-            (
-                view_port.min_x,
-                view_port.min_y,
-                view_port.max_x,
-                view_port.max_y,
-            ),
-        );
-
-        let document = (view_port.min_x..=view_port.max_x).fold(document, |document, x| {
-            (view_port.min_y..=view_port.max_y).fold(document, |document, y| {
-                if x % 50 == 0 && y % 50 == 0 {
-                    document.add(
-                        Circle::new()
-                            .set("cx", x)
-                            .set("cy", y)
-                            .set("r", 0.25)
-                            .set("fill", "black"),
-                    )
-                } else {
-                    document
-                }
-            })
-        });
-
-        let data_first: Data = first
-            .iter()
-            .map(|seg| seg.range.end.point)
-            .fold(Data::new().move_to((0, 0)), |data, point| {
-                data.line_to((point.x, point.y))
-            });
-
-        let first_path = Path::new()
-            .set("stroke", "green")
-            .set("stroke-width", 1)
-            .set("fill", "none")
-            .set("d", data_first);
-
-        let data_second: Data = second
-            .iter()
-            .map(|seg| seg.range.end.point)
-            .fold(Data::new().move_to((0, 0)), |data, point| {
-                data.line_to((point.x, point.y))
-            });
-
-        let second_path = Path::new()
-            .set("stroke", "blue")
-            .set("stroke-width", 1)
-            .set("fill", "none")
-            .set("d", data_second);
-
-        let document = document.add(first_path).add(second_path);
-
-        let document = super::all_intersections(first.clone(), second.clone())
-            .iter()
-            .fold(document, |document, p| {
-                document
-                    .add(
-                        Circle::new()
-                            .set("cx", p.x)
-                            .set("cy", p.y)
-                            .set("r", 0.4)
-                            .set("fill", "purple"),
-                    )
-                    .add({
-                        let mut text = Text::new().set("x", p.x).set("y", p.y);
-                        text.append(svg::node::Text::new(format!("{},{}", p.x, p.y)));
-                        text
-                    })
-            });
-
-        let closest = super::closest_to_origin(super::all_intersections(first, second)).unwrap();
-
-        let document = document.add(
-            Circle::new()
-                .set("cx", closest.x)
-                .set("cy", closest.y)
-                .set("r", 0.5)
-                .set("fill", "red"),
-        );
-
-        svg::save("path.svg", &document).unwrap();
-    }
-}
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::debug::to_svg;
 
     #[test]
     fn test_demo() {
@@ -369,9 +283,24 @@ mod tests {
 
         to_svg::make_svg(first_path.clone(), second_path.clone());
         println!("{:?}", all_points(&first_path));
-        let intersections = all_intersections(first_path, second_path);
+        let intersections = all_intersections(&first_path, &second_path);
         println!("{:?}", intersections);
-        assert_eq!(closest_to_origin(intersections), Some(Point::new(3, 3)))
+        assert_eq!(super::find_closest((&first_path, &second_path), super::distances::manhattan), Some(Point::new(3, 3)))
+    }
+
+    #[test]
+    fn test_demo_part2() {
+        let first_path = parse_wire_path("R8,U5,L5,D3");
+        let second_path = parse_wire_path("U7,R6,D4,L4");
+
+        println!("{:?}", all_points(&first_path));
+        let intersections = all_intersections(&first_path, &second_path);
+        let distance_to = distances::wire_paths(&first_path, &second_path);
+        let closest_point = find_closest((&first_path, &second_path), distance_to).unwrap();
+        assert_eq!(closest_point, Point::new(6, 5));
+
+        let distance_to = distances::wire_paths(&first_path, &second_path);
+        assert_eq!(distance_to(&closest_point), 30)
     }
 
     #[test]
@@ -380,19 +309,20 @@ mod tests {
 U62,R66,U55,R34,D71,R55,D58,R83";
 
         let (first, second) = parse_paths(input);
-        to_svg::make_svg(first, second);
 
         assert_eq!(
-            find_closest(input).map(|p| p.distance_from_origin()),
-            Some(159)
+            distances::manhattan(&find_closest((&first, &second), distances::manhattan).unwrap()),
+            159
         );
+        to_svg::make_svg(first, second);
 
         let input = "R98,U47,R26,D63,R33,U87,L62,D20,R33,U53,R51
 U98,R91,D20,R16,D67,R40,U7,R15,U6,R7";
+        let (first, second) = parse_paths(input);
 
         assert_eq!(
-            find_closest(input).map(|p| p.distance_from_origin()),
-            Some(135)
+            distances::manhattan(&find_closest((&first, &second), distances::manhattan).unwrap()),
+            135
         )
     }
 }

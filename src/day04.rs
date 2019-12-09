@@ -1,5 +1,4 @@
-use std::borrow::Borrow;
-use std::ops::{Range, RangeInclusive};
+use std::ops::{RangeInclusive};
 use std::collections::HashMap;
 
 fn get_digits(mut num: i32, buffer: &mut Vec<i32>) {
