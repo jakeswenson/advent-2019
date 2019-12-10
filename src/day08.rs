@@ -30,7 +30,7 @@ fn merge_image(image_layers: Vec<Vec<i32>>) -> Vec<i32> {
 
 fn part1() -> usize {
     let input = include_str!("resources/day08.txt");
-    let mut layers = parse_layers(parse(input), 25, 6);
+    let layers = parse_layers(parse(input), 25, 6);
     let layer = layers
         .iter()
         .min_by_key(|l| l.iter().filter(|&&i| i == 0).count())

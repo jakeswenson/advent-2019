@@ -110,7 +110,10 @@ pub struct PathSegment {
 
 impl PathSegment {
     pub fn points(&self) -> Vec<DirectionalPoint> {
-        self.range.start.step_to(&self.range.end).expect("Cant step")
+        self.range
+            .start
+            .step_to(&self.range.end)
+            .expect("Cant step")
     }
 
     pub fn end(&self) -> Point {
@@ -124,12 +127,11 @@ pub mod distances {
     use crate::day03::{Point, WirePath};
     use std::collections::HashMap;
 
-    pub fn manhattan(point: &Point) -> i32{
+    pub fn manhattan(point: &Point) -> i32 {
         point.x.abs() + point.y.abs()
     }
 
     pub fn wire_paths(first: &WirePath, second: &WirePath) -> impl Fn(&Point) -> i32 {
-
         fn points(path: &WirePath) -> Vec<Point> {
             path.iter()
                 .flat_map(|seg| seg.points())
@@ -138,8 +140,10 @@ pub mod distances {
         }
 
         let mut map: HashMap<Point, i32> = HashMap::new();
-            points(first).iter().enumerate()
-                .chain(points(second).iter().enumerate())
+        points(first)
+            .iter()
+            .enumerate()
+            .chain(points(second).iter().enumerate())
             .for_each(|(idx, &point)| {
                 map.entry(point)
                     .and_modify(|e| *e += idx as i32)
@@ -237,7 +241,10 @@ pub fn all_intersections(path1: &WirePath, path2: &WirePath) -> Vec<Point> {
     path1_points.intersection(&path2_points).cloned().collect()
 }
 
-pub fn find_closest((first, second): (&WirePath, &WirePath), distance: impl Fn(&Point) -> i32) -> Option<Point> {
+pub fn find_closest(
+    (first, second): (&WirePath, &WirePath),
+    distance: impl Fn(&Point) -> i32,
+) -> Option<Point> {
     let mut points = all_intersections(&first, &second);
 
     points.sort_by_key(distance);
@@ -270,7 +277,6 @@ pub fn solve() {
     // to_svg::make_svg(first, second);
 }
 
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -285,7 +291,10 @@ mod tests {
         println!("{:?}", all_points(&first_path));
         let intersections = all_intersections(&first_path, &second_path);
         println!("{:?}", intersections);
-        assert_eq!(super::find_closest((&first_path, &second_path), super::distances::manhattan), Some(Point::new(3, 3)))
+        assert_eq!(
+            super::find_closest((&first_path, &second_path), super::distances::manhattan),
+            Some(Point::new(3, 3))
+        )
     }
 
     #[test]

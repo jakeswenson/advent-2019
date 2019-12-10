@@ -1,9 +1,6 @@
+fn part1() {}
 
-fn part1() {
-}
-
-fn part2() {
-}
+fn part2() {}
 
 pub fn solve() {
     part1();
@@ -12,11 +9,8 @@ pub fn solve() {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
-
     #[test]
-    fn test_part1_rules() {
-    }
+    fn test_part1_rules() {}
 
     #[test]
     fn test_part2_rules() {}
