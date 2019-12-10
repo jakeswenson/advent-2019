@@ -26,7 +26,7 @@ pub fn solve() {
 
 #[cfg(test)]
 mod tests {
-    use crate::computer::{from, ComputerWord};
+    use crate::computer::{self, from, ComputerWord};
     use num::ToPrimitive;
 
     #[test]
@@ -37,8 +37,8 @@ mod tests {
 
     #[test]
     fn test_part2() {
-        fn single_input(program: &str, input: i32, expected: i32) {
-            let single_output = from(program).add_input(input).run().pop().unwrap();
+        fn single_input(program: &str, input: i64, expected: i32) {
+            let single_output = computer::run_single_input(program, input);
             assert_eq!(
                 single_output,
                 ComputerWord::from(expected),
@@ -74,15 +74,7 @@ mod tests {
     #[test]
     fn test_part2_rules() {
         let input = "3,21,1008,21,8,20,1005,20,22,107,8,21,20,1006,20,31,1106,0,36,98,0,0,1002,21,125,20,4,20,1105,1,46,104,999,1105,1,46,1101,1000,1,20,4,20,1105,1,46,98,99";
-        let run = |i: i32| {
-            from(input)
-                .add_input(i)
-                .run()
-                .pop()
-                .unwrap()
-                .to_i32()
-                .unwrap()
-        };
+        let run = |i: i64| computer::run_single_input(input, i).to_i32().unwrap();
         assert_eq!(run(5), 999);
         assert_eq!(run(8), 1000);
         assert_eq!(run(9), 1001);

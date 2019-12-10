@@ -9,6 +9,7 @@ pub struct Point {
 }
 
 impl Point {
+    #[allow(dead_code)]
     fn new(x: i32, y: i32) -> Self {
         return Point { x, y };
     }
@@ -303,7 +304,6 @@ mod tests {
         let second_path = parse_wire_path("U7,R6,D4,L4");
 
         println!("{:?}", all_points(&first_path));
-        let intersections = all_intersections(&first_path, &second_path);
         let distance_to = distances::wire_paths(&first_path, &second_path);
         let closest_point = find_closest((&first_path, &second_path), distance_to).unwrap();
         assert_eq!(closest_point, Point::new(6, 5));

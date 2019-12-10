@@ -21,7 +21,7 @@ fn solve_for(solution: i32) {
             stack[2] = ComputerWord::from(verb);
             let mut computer = computer::Computer::new(stack);
             let result = computer.eval();
-            if result == &solution {
+            if result == solution {
                 println!("Solved: {}", 100 * noun + verb);
                 return;
             }
@@ -45,11 +45,11 @@ mod tests {
     fn test_examples() {
         assert_eq!(
             computer::from("2,4,4,0,99,0").eval(),
-            &ComputerWord::from(9801)
+            ComputerWord::from(9801)
         );
         assert_eq!(
             computer::from("1,1,1,4,99,5,6,0,99").eval(),
-            &ComputerWord::from(30)
+            ComputerWord::from(30)
         );
     }
 }

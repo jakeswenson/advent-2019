@@ -1,8 +1,9 @@
+#![allow(dead_code)]
 use std::collections::HashSet;
 
-use crate::day03::{find_closest, all_intersections, all_points, distances};
+use crate::day03::{all_intersections, all_points, distances, find_closest};
 
-use crate::day03::{Point,WirePath};
+use crate::day03::{Point, WirePath};
 
 struct Bounds {
     min_x: i32,
