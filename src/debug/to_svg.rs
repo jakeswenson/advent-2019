@@ -3,7 +3,8 @@ use std::collections::HashSet;
 
 use crate::day03::{all_intersections, all_points, distances, find_closest};
 
-use crate::day03::{Point, WirePath};
+use crate::day03::WirePath;
+use crate::point::Point;
 
 struct Bounds {
     min_x: i32,

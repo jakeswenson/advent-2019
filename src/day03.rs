@@ -1,50 +1,7 @@
+use crate::point::Point;
 use std::collections::HashSet;
 use std::ops::Range;
 use std::str::FromStr;
-
-#[derive(Copy, Clone, PartialOrd, PartialEq, Ord, Eq, Debug, Hash)]
-pub struct Point {
-    pub x: i32,
-    pub y: i32,
-}
-
-impl Point {
-    #[allow(dead_code)]
-    fn new(x: i32, y: i32) -> Self {
-        return Point { x, y };
-    }
-
-    fn left(&self, amount: i32) -> Self {
-        Point {
-            x: self.x - amount,
-            y: self.y,
-        }
-    }
-    fn right(&self, amount: i32) -> Self {
-        Point {
-            x: self.x + amount,
-            y: self.y,
-        }
-    }
-    fn up(&self, amount: i32) -> Self {
-        Point {
-            x: self.x,
-            y: self.y + amount,
-        }
-    }
-    fn down(&self, amount: i32) -> Self {
-        Point {
-            x: self.x,
-            y: self.y - amount,
-        }
-    }
-}
-
-impl Default for Point {
-    fn default() -> Self {
-        Point { x: 0, y: 0 }
-    }
-}
 
 #[derive(Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Debug)]
 pub enum Direction {
@@ -294,7 +251,7 @@ mod tests {
         println!("{:?}", intersections);
         assert_eq!(
             super::find_closest((&first_path, &second_path), super::distances::manhattan),
-            Some(Point::new(3, 3))
+            Some(Point::of(3, 3))
         )
     }
 
@@ -306,7 +263,7 @@ mod tests {
         println!("{:?}", all_points(&first_path));
         let distance_to = distances::wire_paths(&first_path, &second_path);
         let closest_point = find_closest((&first_path, &second_path), distance_to).unwrap();
-        assert_eq!(closest_point, Point::new(6, 5));
+        assert_eq!(closest_point, Point::of(6, 5));
 
         let distance_to = distances::wire_paths(&first_path, &second_path);
         assert_eq!(distance_to(&closest_point), 30)

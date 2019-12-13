@@ -1,6 +1,22 @@
-fn part1() {}
+use crate::computer;
 
-fn part2() {}
+fn part1() {
+    let day = include_str!("resources/day09.txt");
+    let comp = computer::from(day).add_input(1);
+    let outputs = comp.run();
+    for (idx, output) in outputs.iter().enumerate() {
+        println!("[{}] {}", idx, output);
+    }
+}
+
+fn part2() {
+    let day = include_str!("resources/day09.txt");
+    let comp = computer::from(day).add_input(2);
+    let outputs = comp.run();
+    for (idx, output) in outputs.iter().enumerate() {
+        println!("[{}] {}", idx, output);
+    }
+}
 
 pub fn solve() {
     part1();

@@ -1,5 +1,4 @@
 mod computer;
-mod debug;
 mod day01;
 mod day02;
 mod day03;
@@ -9,6 +8,9 @@ mod day06;
 mod day07;
 mod day08;
 mod day09;
+mod day10;
+mod debug;
+mod point;
 
 fn main() {
     println!("-------------\n  Day 01\n-------------");
@@ -38,4 +40,7 @@ fn main() {
 
     println!("-------------\n  Day 09\n-------------");
     day09::solve();
+
+    println!("-------------\n  Day 10\n-------------");
+    day10::solve();
 }
