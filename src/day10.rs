@@ -1,6 +1,5 @@
 use std::collections::{HashMap, HashSet};
 
-use crate::day03::all_points;
 use crate::point::{Point, Slope};
 
 struct Map {
@@ -80,7 +79,7 @@ fn find_best(map: &Map) -> BestPoint {
   });
 
   let mut v: Vec<(i32, Point)> = hash.iter().map(|(&k, &v)| (v, k)).collect();
-  v.sort_by_key(|(count, point)| -count);
+  v.sort_by_key(|(count, _point)| -count);
 
   let (count, point) = v.first().unwrap().clone();
   BestPoint {
@@ -112,9 +111,8 @@ fn laser(center: &Point, map: &Map) -> Vec<Point> {
     let b = b.as_vector();
     let a_mag = a.magnitude();
     let b_mag = b.magnitude();
-    let a = (a.angle_with_0_down() * b_mag,);
-    let b = (b.angle_with_0_down(), b.magnitude());
-
+    let a = (a.angle_with_0_down() * a_mag, a_mag);
+    let b = (b.angle_with_0_down() * b_mag, b_mag);
     a.partial_cmp(&b).unwrap()
   });
 
@@ -131,8 +129,6 @@ pub fn solve() {
 #[cfg(test)]
 mod tests {
   use super::*;
-  use crate::point::{Slope, Vector};
-  use std::collections::VecDeque;
 
   #[test]
   fn test_part1_small() {
@@ -204,13 +200,13 @@ mod tests {
     let map = Map::from(map);
     let center = Point::of(11, 13);
 
-    println!("{:?}", result);
-    let mut iter = result.iter().cloned();
+    let result = laser(&center, &map);
+    let mut iter = result.iter();
 
-    let point = center.add(iter.next().unwrap());
+    let point = iter.next().cloned().unwrap();
     assert_eq!(point, Point::of(11, 12));
 
-    let point = center.add(iter.next().unwrap());
+    let point = iter.next().cloned().unwrap();
     assert_eq!(point, Point::of(12, 1));
   }
 
@@ -225,12 +221,12 @@ mod tests {
 
     let points = laser(&center, &map);
     println!("{:?}", points);
-    let mut iter = result.iter().cloned();
+    let mut iter = points.iter().cloned();
 
-    let point = center.add(iter.next().unwrap());
+    let point = iter.next().unwrap();
     assert_eq!(point, Point::of(11, 12));
 
-    let point = center.add(iter.next().unwrap());
+    let point = iter.next().unwrap();
     assert_eq!(point, Point::of(12, 1));
   }
 }

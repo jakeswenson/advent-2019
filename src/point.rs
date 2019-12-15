@@ -149,13 +149,18 @@ impl Slope {
   pub fn as_vector(&self) -> Vector {
     let x = f64::from(self.x);
     let y = f64::from(self.y);
-    Vector(x, y)
+    Vector::of(x, y)
   }
 }
 
 #[derive(Copy, Clone, PartialOrd, PartialEq, Debug)]
 pub struct Vector(f64, f64);
+
 impl Vector {
+  pub fn of(x: f64, y: f64) -> Self {
+    Vector(x, y)
+  }
+
   pub fn magnitude(&self) -> f64 {
     (self.0.powi(2) + self.1.powi(2)).sqrt()
   }

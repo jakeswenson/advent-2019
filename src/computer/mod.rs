@@ -2,7 +2,7 @@ use std::collections::VecDeque;
 use std::fmt::{Debug, Display, Error, Formatter};
 use std::str::FromStr;
 
-use num::{pow::Pow, CheckedAdd, CheckedMul, One, ToPrimitive, Zero};
+use num::{pow::Pow, One, ToPrimitive, Zero};
 
 pub fn parse_op_stack(input: &str) -> Vec<ComputerWord> {
   input
