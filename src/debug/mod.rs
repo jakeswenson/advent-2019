@@ -1,1 +1,1 @@
-pub mod to_svg;
+pub mod svg;

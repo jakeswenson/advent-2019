@@ -172,6 +172,13 @@ impl Vector {
   pub fn angle_with_0_down(&self) -> f64 {
     (self.angle() + 180.0) % 360.0
   }
+
+  pub fn spiral(&self) -> Self {
+    Vector(
+      self.0.cos() * self.magnitude(),
+      self.1.sin() * self.magnitude(),
+    )
+  }
 }
 
 impl Default for Point {

@@ -1,6 +1,6 @@
 use std::collections::{HashMap, HashSet};
 
-use crate::point::{Point, Slope};
+use crate::coordinates::{Point, Slope};
 
 struct Map {
   objects: Vec<Vec<bool>>,
@@ -101,19 +101,16 @@ fn laser(center: &Point, map: &Map) -> Vec<Point> {
     .iter()
     .filter(|&p| p != center)
     .map(|f| center.slope_to(f))
-    .collect::<HashSet<Slope>>()
-    .iter()
-    .cloned()
     .collect();
 
   result.sort_by(|a, b| {
     let a = a.as_vector();
     let b = b.as_vector();
-    let a_mag = a.magnitude();
-    let b_mag = b.magnitude();
-    let a = (a.angle_with_0_down() * a_mag, a_mag);
-    let b = (b.angle_with_0_down() * b_mag, b_mag);
-    a.partial_cmp(&b).unwrap()
+
+    let a_cmp = (a.angle() * a.magnitude(), a.magnitude());
+    let b_cmp = (b.angle() * b.magnitude(), b.magnitude());
+
+    a_cmp.partial_cmp(&b_cmp).unwrap()
   });
 
   return result.iter().map(|slope| center.add(slope)).collect();
@@ -217,16 +214,53 @@ mod tests {
 ###
 ";
     let map = Map::from(map);
+    println!("{:?}", map.objects());
+
     let center = Point::of(1, 1);
 
     let points = laser(&center, &map);
-    println!("{:?}", points);
+    println!("Laser Path: {:?}", points);
     let mut iter = points.iter().cloned();
 
     let point = iter.next().unwrap();
-    assert_eq!(point, Point::of(11, 12));
+    assert_eq!(point, Point::of(1, 0));
 
     let point = iter.next().unwrap();
-    assert_eq!(point, Point::of(12, 1));
+    assert_eq!(point, Point::of(2, 1));
+
+    let point = iter.next().unwrap();
+    assert_eq!(point, Point::of(0, 1));
+  }
+
+  #[test]
+  fn test_part2_less_simple() {
+    let map = "
+.#..
+.#..
+####
+";
+    let map = Map::from(map);
+    println!("Objects: {:?}", map.objects());
+
+    let center = Point::of(1, 2);
+
+    let points = laser(&center, &map);
+    println!("Laser Path: {:?}", points);
+    let mut iter = points.iter().cloned();
+
+    let point = iter.next().unwrap();
+    assert_eq!(point, Point::of(1, 1));
+
+    let point = iter.next().unwrap();
+    assert_eq!(point, Point::of(2, 2));
+
+    let point = iter.next().unwrap();
+    assert_eq!(point, Point::of(0, 2));
+
+    let point = iter.next().unwrap();
+    assert_eq!(point, Point::of(1, 0));
+
+    let point = iter.next().unwrap();
+    assert_eq!(point, Point::of(3, 2));
   }
 }
